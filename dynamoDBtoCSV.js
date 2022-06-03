@@ -7,6 +7,9 @@ var fs = require("fs");
 var headers = [];
 var unMarshalledArray = [];
 
+// Usage:
+// AWS_SDK_LOAD_CONFIG=1 AWS_PROFILE=hg-search-prod node dynamoDBtoCSV.js --table hg-listing-api-listings-prod > dump-2020-07-21.csv
+
 program
   .version("0.0.1")
   .option("-t, --table [tablename]", "Add the table you want to output to csv")
@@ -32,46 +35,46 @@ if (!program.table) {
   process.exit(1);
 }
 
-if (program.region && AWS.config.credentials) {
-  AWS.config.update({ region: program.region });
-} else {
-  AWS.config.loadFromPath(__dirname + "/config.json");
-}
+// if (program.region && AWS.config.credentials) {
+//   AWS.config.update({ region: program.region });
+// } else {
+//   AWS.config.loadFromPath(__dirname + "/config.json");
+// }
 
 if (program.endpoint) {
   AWS.config.update({ endpoint: program.endpoint });
 }
 
-if (program.profile) {
-  var newCreds = new AWS.SharedIniFileCredentials({ profile: program.profile });
-  newCreds.profile = program.profile;
-  AWS.config.update({ credentials: newCreds });
-}
+// if (program.profile) {
+//   var newCreds = new AWS.SharedIniFileCredentials({ profile: program.profile });
+//   newCreds.profile = program.profile;
+//   AWS.config.update({ credentials: newCreds });
+// }
 
-if (program.envcreds) {
-  var newCreds = AWS.config.credentials;
-  newCreds.profile = program.profile;
-  AWS.config.update({
-    credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    },
-    region: process.env.AWS_DEFAULT_REGION
-  });
-}
+// if (program.envcreds) {
+//   var newCreds = AWS.config.credentials;
+//   newCreds.profile = program.profile;
+//   AWS.config.update({
+//     credentials: {
+//       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+//       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+//     },
+//     region: process.env.AWS_DEFAULT_REGION
+//   });
+// }
 
-if (program.mfa && program.profile) {
-  const creds = new AWS.SharedIniFileCredentials({
-    tokenCodeFn: (serial, cb) => {cb(null, program.mfa)},
-    profile: program.profile
-  });
+// if (program.mfa && program.profile) {
+//   const creds = new AWS.SharedIniFileCredentials({
+//     tokenCodeFn: (serial, cb) => {cb(null, program.mfa)},
+//     profile: program.profile
+//   });
 
-  // Update config to include MFA
-  AWS.config.update({ credentials: creds });
-} else if(program.mfa && !program.profile) {
-  console.log('error: MFA requires a profile(-p [profile]) to work');
-  process.exit(1);
-}
+//   // Update config to include MFA
+//   AWS.config.update({ credentials: creds });
+// } else if(program.mfa && !program.profile) {
+//   console.log('error: MFA requires a profile(-p [profile]) to work');
+//   process.exit(1);
+// }
 
 var dynamoDB = new AWS.DynamoDB();
 
@@ -137,7 +140,7 @@ var unparseData = function (lastEvaluatedKey) {
     console.log(endData);
   }
   // Print last evaluated key so process can be continued after stop.
-  console.log(lastEvaluatedKey);
+  // console.log(lastEvaluatedKey);
 
   // reset write array. saves memory
   unMarshalledArray = [];
